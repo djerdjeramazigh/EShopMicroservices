@@ -1,20 +1,30 @@
-﻿using MediatR;
+﻿
+
 
 namespace CatalogAPI.Products.CreateProduct
 {
-public record CreateProductCommand(string Name, List<string> Category, string Description, string ImageFile, decimal Price):IRequest<CreateProductResult>;
-public record CreateProductResult(Guid Id);
-internal class CreateProductCommandHandler: IRequestHandler<CreateProductCommand, CreateProductResult>
-{
-    public Task<CreateProductResult> Handle(CreateProductCommand request, CancellationToken cancellationToken)
+    public record CreateProductCommand(string Name, List<string> Category, string Description, string ImageFile, decimal Price) : ICommand<CreateProductResult>;
+    public record CreateProductResult(Guid Id);
+    internal class CreateProductCommandHandler(IDocumentSession session) : ICommandHandler<CreateProductCommand, CreateProductResult>
     {
-        // Here you would typically interact with your database to create the product
-        // For this example, we will just return a new Guid as the product Id
-        var newProductId = Guid.NewGuid();
-        return Task.FromResult(new CreateProductResult(newProductId));
-    }
-    }
-{
+        public async Task<CreateProductResult> Handle(CreateProductCommand command, CancellationToken cancellationToken)
+        {
+            //create Product entity from command object
+            //return CreateProductResult with the new product Id
+            var product = new Product
+            {
+                Name = command.Name,
+                Category = command.Category,
+                Description = command.Description,
+                ImageFile = command.ImageFile,
+                Price = command.Price
+            };
+            //save to database
+            session.Store(product);
+            await session.SaveChangesAsync(cancellationToken);
+            return new CreateProductResult(product.Id);
 
-}
+        }
+
+    }
 }
