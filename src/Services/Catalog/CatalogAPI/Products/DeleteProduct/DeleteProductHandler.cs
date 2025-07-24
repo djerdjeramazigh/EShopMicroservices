@@ -10,13 +10,12 @@ namespace CatalogAPI.Products.DeleteProduct
             RuleFor(x => x.Id).NotEmpty().WithMessage("Product ID must not be empty.");
         }
     }
-    internal class DeleteProductCommandHandler(IDocumentSession session, ILogger<DeleteProductCommandHandler> logger)
+    internal class DeleteProductCommandHandler(IDocumentSession session)
         : ICommandHandler<DeleteProductCommand, DeleteProductResult>
     {
        public Task<DeleteProductResult> Handle(DeleteProductCommand command, CancellationToken cancellationToken)
         {
-           logger.LogInformation("Handling DeleteProductCommand. Handle called with {@Command}", command);
-            // Simulate deleting a product by ID from a database or service
+           // Simulate deleting a product by ID from a database or service
           
             session.Delete<Product>(command.Id);
             return session.SaveChangesAsync(cancellationToken)
